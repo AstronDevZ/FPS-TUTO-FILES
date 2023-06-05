@@ -1,1 +1,72 @@
+using UnityEngine;
 
+public class PlayerMovement : MonoBehaviour
+{
+    public float moveSpeed = 5f;
+    public float jumpForce = 5f;
+    public Transform cameraTransform;
+
+    private Rigidbody rb;
+    private Vector3 moveDirection;
+    private bool isJumping = false;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
+    void Update()
+    {
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+
+        // Calcular o movimento do jogador com base nos valores de entrada
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        moveDirection = (horizontalInput * right + verticalInput * forward).normalized;
+
+        // Verificar se o jogador está pulando
+        if (Input.GetKeyDown(KeyCode.Escape) && IsGrounded())
+        {
+            isJumping = true;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        // Aplicar o movimento ao Rigidbody
+        rb.velocity = new Vector3(moveDirection.x * moveSpeed, rb.velocity.y, moveDirection.z * moveSpeed);
+
+        // Aplicar o pulo, se necessário
+        if (isJumping)
+        {
+            Jump();
+            isJumping = false;
+        }
+
+        // Atualizar a posição da câmera para seguir o jogador
+        Vector3 targetPosition = transform.position + cameraTransform.position - cameraTransform.forward;
+        cameraTransform.position = targetPosition;
+    }
+
+    void Jump()
+    {
+        // Aplicar a força vertical para pular
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+    }
+
+    bool IsGrounded()
+    {
+        RaycastHit hit;
+        float raycastDistance = 0.1f;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, raycastDistance))
+        {
+            return true;
+        }
+        return false;
+    }
