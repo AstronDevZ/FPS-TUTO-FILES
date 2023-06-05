@@ -1,0 +1,27 @@
+using UnityEngine;
+
+public class CameraRotation : MonoBehaviour
+{
+    public float rotationSpeed = 5f;
+
+    private float rotationX = 0f;
+    private float rotationY = 0f;
+    private float rotationZ = 0f;
+
+    void Update()
+    {
+        // Obter os valores dos eixos X e Y do mouse
+        float inputX = Input.GetAxis("Mouse X") * rotationSpeed;
+        float inputY = Input.GetAxis("Mouse Y") * rotationSpeed;
+
+        // Calcular a rotação nos eixos X, Y e Z
+        rotationX -= inputY;
+        rotationY += inputX;
+
+        // Limitar a rotação no eixo X entre -90 e 90 graus
+        rotationX = Mathf.Clamp(rotationX, -90f, 90f);
+
+        // Rotacionar a câmera nos eixos X, Y e Z
+        transform.rotation = Quaternion.Euler(rotationX, rotationY, rotationZ);
+    }
+}
